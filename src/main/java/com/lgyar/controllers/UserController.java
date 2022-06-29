@@ -1,6 +1,9 @@
 package com.lgyar.controllers;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -10,6 +13,26 @@ public class UserController {
     @RequestMapping(value = "")
     @ResponseBody
     public String index() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            System.out.println("logged user has authorities: " + auth.getAuthorities());
+        }
+        else {
+            System.out.println("no user logged in");
+        }
         return "Hello user!";
+    }
+
+    @GetMapping(value = "username")
+    @ResponseBody
+    public String currentUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            return auth.getName();
+        }
+        else {
+            System.out.println("returning empty (authentication is null)");
+            return "";
+        }
     }
 }

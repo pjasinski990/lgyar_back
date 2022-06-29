@@ -5,11 +5,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 
-public class MongoUserDetails implements UserDetails {
-    MongoUserDetails(User u) {
+public class MongoUserDetails implements Principal, UserDetails {
+    public MongoUserDetails(User u) {
         user = u;
     }
 
@@ -48,5 +49,10 @@ public class MongoUserDetails implements UserDetails {
         return true;
     }
 
-    private User user;
+    @Override
+    public String getName() {
+        return getUsername();
+    }
+
+    private final User user;
 }
