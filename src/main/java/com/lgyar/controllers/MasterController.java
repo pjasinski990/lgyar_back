@@ -19,13 +19,30 @@ import java.security.Principal;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MasterController {
     @Autowired
     UserRepository repository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @GetMapping(value = "hello-anon")
+    @ResponseBody
+    public String getHelloAnon() {
+        return "Hello Anon!";
+    }
+
+    @GetMapping(value = "hello-user")
+    @ResponseBody
+    public String getHelloUser() {
+        return "Hello user!";
+    }
+
+    @GetMapping(value = "hello-admin")
+    @ResponseBody
+    public String getHelloAdmin() {
+        return "Hello admin!";
+    }
 
     @PostMapping(value = "login")
     public ResponseEntity<?> postLogin(@RequestBody UserDTO userDto) {

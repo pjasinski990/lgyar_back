@@ -12,8 +12,10 @@ import java.util.Optional;
 
 @Service
 public class MongoUserDetailService implements UserDetailsService {
-    @Autowired
-    UserRepository repository;
+
+    public MongoUserDetailService(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -25,4 +27,6 @@ public class MongoUserDetailService implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
     }
+
+    private final UserRepository repository;
 }
