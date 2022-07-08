@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping(value = "user")
 public class UserController {
+
     @RequestMapping(value = "")
     @ResponseBody
     public String index() {
@@ -26,13 +27,6 @@ public class UserController {
     @GetMapping(value = "username")
     @ResponseBody
     public String currentUserName() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            return auth.getName();
-        }
-        else {
-            System.out.println("returning empty (authentication is null)");
-            return "";
-        }
+        return "Hello from get username";
     }
 }

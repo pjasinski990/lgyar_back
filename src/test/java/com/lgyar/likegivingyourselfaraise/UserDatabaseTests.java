@@ -35,7 +35,7 @@ class UserDatabaseTests {
     @Test
     void userInsertedInDB_canBeRetrieved() {
         String username = "john";
-        User user = new User(username, "passHash", UserRole.USER, null, null);
+        User user = new User(username, "passHash", UserRole.ROLE_USER, null, null);
         repository.save(user);
 
         Optional<User> retrieved = repository.findById(username);

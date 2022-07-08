@@ -72,10 +72,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
 
         http = http.authorizeRequests()
-                .antMatchers("/api/public**").permitAll()
-                .antMatchers("/api/login").permitAll()
-                .antMatchers("/api/register").permitAll()
-                .antMatchers("/api/logout").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/register").permitAll()
+                .antMatchers("/logout").permitAll()
+//                .antMatchers("/user").hasAnyRole("ADMIN", "USER")
+//                .antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and();
 
@@ -83,7 +84,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer()
                 .jwt();
-
     }
 
     @Bean
