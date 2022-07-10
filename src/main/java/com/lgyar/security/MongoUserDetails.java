@@ -1,6 +1,6 @@
-package com.lgyar.authentication;
+package com.lgyar.security;
 
-import com.lgyar.domain.User;
+import com.lgyar.domain.AppUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class MongoUserDetails implements Principal, UserDetails {
-    public MongoUserDetails(User u) {
+    public MongoUserDetails(AppUser u) {
         user = u;
     }
 
@@ -54,5 +54,5 @@ public class MongoUserDetails implements Principal, UserDetails {
         return getUsername();
     }
 
-    private final User user;
+    private final AppUser user;
 }

@@ -1,10 +1,10 @@
 package com.lgyar.repositories;
 
-import com.lgyar.domain.User;
+import com.lgyar.domain.AppUser;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends MongoRepository<User, String> {
+public interface UserRepository extends MongoRepository<AppUser, String> {
 
 }

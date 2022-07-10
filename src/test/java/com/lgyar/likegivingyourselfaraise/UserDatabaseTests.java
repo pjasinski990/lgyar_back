@@ -1,6 +1,6 @@
 package com.lgyar.likegivingyourselfaraise;
 
-import com.lgyar.domain.User;
+import com.lgyar.domain.AppUser;
 import com.lgyar.domain.UserRole;
 import com.lgyar.repositories.UserRepository;
 import org.junit.After;
@@ -35,10 +35,10 @@ class UserDatabaseTests {
     @Test
     void userInsertedInDB_canBeRetrieved() {
         String username = "john";
-        User user = new User(username, "passHash", UserRole.ROLE_USER, null, null);
+        AppUser user = new AppUser(username, "passHash", UserRole.ROLE_USER, null, null);
         repository.save(user);
 
-        Optional<User> retrieved = repository.findById(username);
+        Optional<AppUser> retrieved = repository.findById(username);
         if (retrieved.isPresent()) {
             String retrievedUsername = retrieved.get().getUsername();
             assertEquals(username, retrievedUsername);
