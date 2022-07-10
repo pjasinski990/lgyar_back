@@ -14,28 +14,10 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-public class MasterController {
+public class AuthController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
-
-    @GetMapping(value = "/hello-anon")
-    @ResponseBody
-    public String getHelloAnon() {
-        return "Hello Anon!";
-    }
-
-    @GetMapping(value = "/hello-user")
-    @ResponseBody
-    public String getHelloUser() {
-        return "Hello user!";
-    }
-
-    @GetMapping(value = "/hello-admin")
-    @ResponseBody
-    public String getHelloAdmin() {
-        return "Hello admin!";
-    }
 
     @PostMapping(value = "register")
     public ResponseEntity<?> postRegister(@RequestBody UserDTO userDto) {

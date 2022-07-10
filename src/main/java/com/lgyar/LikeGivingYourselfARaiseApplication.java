@@ -3,13 +3,11 @@ package com.lgyar;
 import com.lgyar.domain.AppUser;
 import com.lgyar.domain.UserRole;
 import com.lgyar.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 

@@ -11,7 +11,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class KeyLoader {
+public class RSAKeyLoader {
     public static RSAPublicKey readPublicKey(File file) throws Exception {
         KeyFactory factory = KeyFactory.getInstance("RSA");
 

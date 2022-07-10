@@ -4,9 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,16 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 public class AppAuthorizationFilter extends OncePerRequestFilter {
 
     public AppAuthorizationFilter() {
         try {
-            this.rsaPublicKey = KeyLoader.readPublicKey(new File("src/main/resources/id_rsa.pub"));
-            this.rsaPrivateKey = KeyLoader.readPrivateKey(new File("src/main/resources/id_rsa"));
+            this.rsaPublicKey = RSAKeyLoader.readPublicKey(new File("src/main/resources/id_rsa.pub"));
+            this.rsaPrivateKey = RSAKeyLoader.readPrivateKey(new File("src/main/resources/id_rsa"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +39,7 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!request.getServletPath().equals("/login")) {
+        if (!request.getServletPath().equals("/api/login")) {
             String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authorization != null && authorization.startsWith("Bearer ")) {
                 try {
@@ -62,14 +61,21 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
 
                 } catch (Exception e) {
-                    // TODO change this to send in json body instead of header
-                    response.setHeader("message", "Error logging in: " + e.getMessage());
-                    response.sendError(HttpStatus.FORBIDDEN.value());
+                    Map<String, String> body = new HashMap<>();
+                    body.put("error_message", e.getMessage());
+                    new ObjectMapper().writeValue(response.getOutputStream(), body);
+
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
                 }
             }
             else {
-                response.setHeader("message", "You need to log in first");
-                response.sendRedirect("/login");
+                Map<String, String> body = new HashMap<>();
+                body.put("error_message", "You need to log in first");
+                new ObjectMapper().writeValue(response.getOutputStream(), body);
+
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
             }
         }
         else {
