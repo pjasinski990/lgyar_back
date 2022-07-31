@@ -23,6 +23,7 @@ public class LikeGivingYourselfARaiseApplication {
         return args -> {
             String rootUsername = "root";
             String rootPassword = "root";
+            System.out.println("Creating root user...");
             Optional<AppUser> u = repository.findById(rootUsername);
             if (u.isEmpty()) {
                 String passHash = passwordEncoder.encode(rootPassword);

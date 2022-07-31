@@ -39,39 +39,36 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!request.getServletPath().equals("/api/login")) {
-            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-            if (authorization != null && authorization.startsWith("Bearer ")) {
-                try {
-                    String token = authorization.substring(("Bearer ".length()));
-                    Algorithm algorithm = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
-                    JWTVerifier verifier = JWT.require(algorithm).build();
-                    DecodedJWT decodedJWT = verifier.verify(token);
-                    String username = decodedJWT.getSubject();
+        if (request.getServletPath().equals("/login")
+                || request.getServletPath().equals("/register")
+                || request.getServletPath().equals("/refresh_token")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-                    String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    Arrays.stream(roles).forEach(role -> {
-                        authorities.add(new SimpleGrantedAuthority(role));}
-                    );
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            try {
+                String token = authorization.substring(("Bearer ".length()));
+                Algorithm algorithm = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT decodedJWT = verifier.verify(token);
+                String username = decodedJWT.getSubject();
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(username, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    filterChain.doFilter(request, response);
+                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                Arrays.stream(roles).forEach(role -> {
+                    authorities.add(new SimpleGrantedAuthority(role));}
+                );
 
-                } catch (Exception e) {
-                    Map<String, String> body = new HashMap<>();
-                    body.put("error_message", e.getMessage());
-                    new ObjectMapper().writeValue(response.getOutputStream(), body);
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                filterChain.doFilter(request, response);
 
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                }
-            }
-            else {
+            } catch (Exception e) {
                 Map<String, String> body = new HashMap<>();
-                body.put("error_message", "You need to log in first");
+                body.put("error_message", e.getMessage());
                 new ObjectMapper().writeValue(response.getOutputStream(), body);
 
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -79,7 +76,12 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
             }
         }
         else {
-            filterChain.doFilter(request, response);
+            Map<String, String> body = new HashMap<>();
+            body.put("error_message", "You need to log in first");
+            new ObjectMapper().writeValue(response.getOutputStream(), body);
+
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpStatus.FORBIDDEN.value());
         }
     }
 }

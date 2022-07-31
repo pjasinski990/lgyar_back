@@ -12,10 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.interfaces.RSAPrivateKey;
@@ -31,7 +29,7 @@ public class AppAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public AppAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        this.setFilterProcessesUrl("/api/login");
+        this.setFilterProcessesUrl("/login");
 
         try {
             this.rsaPublicKey = RSAKeyLoader.readPublicKey(new File("src/main/resources/id_rsa.pub"));
@@ -53,7 +51,7 @@ public class AppAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         MongoUserDetails user = (MongoUserDetails) authResult.getPrincipal();
         Algorithm algorithm = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
 
