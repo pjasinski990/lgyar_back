@@ -21,5 +21,4 @@ public class AdminController {
     public ResponseEntity<List<AppUser>> getUsers() {
         return ResponseEntity.ok().body(repository.findAll());
     }
-
 }

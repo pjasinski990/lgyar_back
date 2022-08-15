@@ -26,7 +26,6 @@ public class UserController {
     public ResponseEntity<?> index(Authentication auth) {
         AppUser currentUser = new AppUser();
         List<String> roles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        System.out.println(roles);
 
         currentUser.setUsername(auth.getName());
         currentUser.setRole(UserRole.valueOf(roles.get(0)));

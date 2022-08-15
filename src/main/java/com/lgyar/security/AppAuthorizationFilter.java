@@ -67,21 +67,21 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
 
             } catch (Exception e) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+
                 Map<String, String> body = new HashMap<>();
                 body.put("error_message", e.getMessage());
                 new ObjectMapper().writeValue(response.getOutputStream(), body);
-
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setStatus(HttpStatus.FORBIDDEN.value());
             }
         }
         else {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+
             Map<String, String> body = new HashMap<>();
             body.put("error_message", "You need to log in first");
             new ObjectMapper().writeValue(response.getOutputStream(), body);
-
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setStatus(HttpStatus.FORBIDDEN.value());
         }
     }
 }

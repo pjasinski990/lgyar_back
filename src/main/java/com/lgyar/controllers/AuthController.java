@@ -8,19 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lgyar.domain.AppUser;
 import com.lgyar.domain.UserRole;
 import com.lgyar.repositories.UserRepository;
-import com.lgyar.security.MongoUserDetails;
 import com.lgyar.security.RSAKeyLoader;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +26,6 @@ import java.io.IOException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 public class AuthController {
@@ -58,7 +50,7 @@ public class AuthController {
     @Data
     @AllArgsConstructor
     private static class UserRegisterResponse {
-        private String errorMessage;
+        private String error_message;
         private AppUser created;
     }
 
