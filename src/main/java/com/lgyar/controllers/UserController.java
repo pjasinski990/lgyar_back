@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -24,11 +25,10 @@ public class UserController {
 
     @GetMapping(value = "")
     public ResponseEntity<?> index(Authentication auth) {
-        AppUser currentUser = new AppUser();
-        List<String> roles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-
-        currentUser.setUsername(auth.getName());
-        currentUser.setRole(UserRole.valueOf(roles.get(0)));
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(currentUser);
+        Optional<AppUser> u = repository.findById(auth.getName());
+        if (u.isEmpty()) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(u.get());
     }
 }

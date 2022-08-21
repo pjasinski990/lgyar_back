@@ -17,8 +17,9 @@ import java.time.LocalDateTime;
 @Document
 public class Transaction {
     private String category;
+    @JsonFormat(shape=JsonFormat.Shape.STRING)
     private BigDecimal balanceDifference;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime date;
+    @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss")
+    private LocalDateTime timestamp;
 }

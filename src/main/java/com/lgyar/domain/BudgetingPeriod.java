@@ -19,8 +19,8 @@ public class BudgetingPeriod {
     private List<Envelope> envelopes;
     private List<Transaction> transactions;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="dd.MM.yyyy")
     private LocalDate startDate;
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="dd.MM.yyyy")
     private LocalDate endDate;
 }

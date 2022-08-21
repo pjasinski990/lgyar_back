@@ -36,7 +36,12 @@ public class ActivePeriodController {
         AppUser user = u.get();
         BudgetingPeriod lastPeriod = user.getActivePeriod();
         if (lastPeriod != null) {
-            user.getPreviousPeriods().add(lastPeriod);
+            List<BudgetingPeriod> previousPeriods = user.getPreviousPeriods();
+            if (previousPeriods == null) {
+                previousPeriods = new ArrayList<>();
+            }
+            previousPeriods.add(lastPeriod);
+            user.setPreviousPeriods(previousPeriods);
         }
 
         LocalDate periodStart = LocalDate.now();
