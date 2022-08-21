@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -95,10 +96,10 @@ public class AuthController {
                 if (u.isPresent()) {
                     AppUser user = u.get();
                     String accessToken = JWT.create()
-                            .withSubject(user.getUsername())
-                            .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
+                            .withSubject(username)
+                            .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1))
                             .withIssuer(request.getRequestURL().toString())
-                            .withClaim("roles", List.of(user.getRole()))
+                            .withClaim("roles", List.of(user.getRole().toString()))
                             .sign(algorithm);
 
                     Map<String, String> body = new HashMap<>();
@@ -110,9 +111,9 @@ public class AuthController {
             } catch (Exception e) {
                 Map<String, String> body = new HashMap<>();
                 body.put("error_message", e.getMessage());
-                new ObjectMapper().writeValue(response.getOutputStream(), body);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setStatus(HttpStatus.FORBIDDEN.value());
+                new ObjectMapper().writeValue(response.getOutputStream(), body);
             }
         }
         else {

@@ -67,11 +67,10 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
 
             } catch (Exception e) {
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-
                 Map<String, String> body = new HashMap<>();
                 body.put("error_message", e.getMessage());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
                 new ObjectMapper().writeValue(response.getOutputStream(), body);
             }
         }
