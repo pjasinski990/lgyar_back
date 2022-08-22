@@ -97,7 +97,7 @@ public class AuthController {
                     AppUser user = u.get();
                     String accessToken = JWT.create()
                             .withSubject(username)
-                            .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1))
+                            .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
                             .withIssuer(request.getRequestURL().toString())
                             .withClaim("roles", List.of(user.getRole().toString()))
                             .sign(algorithm);
