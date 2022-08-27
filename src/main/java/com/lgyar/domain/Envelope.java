@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Document
 public class Envelope {
+    @Id
     private String categoryName;
     @JsonFormat(shape=JsonFormat.Shape.STRING)
     private BigDecimal limit;

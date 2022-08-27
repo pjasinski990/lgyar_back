@@ -6,7 +6,6 @@ import com.lgyar.domain.Envelope;
 import com.lgyar.domain.Transaction;
 import com.lgyar.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,14 +29,17 @@ public class ActivePeriodController {
 
     private final UserRepository repository;
 
-    @PostMapping(value = "create")
-    public ResponseEntity<?> create(Authentication auth, @RequestBody List<Envelope> envelopes) {
+    private AppUser getUser(Authentication auth) {
         Optional<AppUser> u = repository.findById(auth.getName());
         if (u.isEmpty()) {
-            return ResponseEntity.internalServerError().build();
+            throw new RuntimeException("No user with username " + auth.getName());
         }
+        return u.get();
+    }
 
-        AppUser user = u.get();
+    @PostMapping(value = "create")
+    public ResponseEntity<?> create(Authentication auth, @RequestBody List<Envelope> envelopes) {
+        AppUser user = getUser(auth);
         BudgetingPeriod lastPeriod = user.getActivePeriod();
         if (lastPeriod != null) {
             List<BudgetingPeriod> previousPeriods = user.getPreviousPeriods();
@@ -56,12 +60,7 @@ public class ActivePeriodController {
 
     @PostMapping(value = "archive")
     public ResponseEntity<?> archive(Authentication auth) {
-        Optional<AppUser> u = repository.findById(auth.getName());
-        if (u.isEmpty()) {
-            return ResponseEntity.internalServerError().build();
-        }
-        AppUser user = u.get();
-
+        AppUser user = getUser(auth);
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -73,18 +72,14 @@ public class ActivePeriodController {
         previousPeriods.add(activePeriod);
         user.setPreviousPeriods(previousPeriods);
         user.setActivePeriod(null);
+
         repository.save(user);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "new_transaction")
-    public ResponseEntity<?> newTransaction(Authentication auth, @RequestBody Transaction newTransaction) {
-        Optional<AppUser> u = repository.findById(auth.getName());
-        if (u.isEmpty()) {
-            return ResponseEntity.internalServerError().build();
-        }
-        AppUser user = u.get();
-
+    @PostMapping(value = "add_transaction")
+    public ResponseEntity<?> addTransaction(Authentication auth, @RequestBody Transaction newTransaction) {
+        AppUser user = getUser(auth);
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -94,5 +89,69 @@ public class ActivePeriodController {
         user.setActivePeriod(activePeriod);
         repository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(newTransaction);
+    }
+
+    @PostMapping(value = "add_envelope")
+    public ResponseEntity<?> addEnvelope(Authentication auth, @RequestBody Envelope target) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        activePeriod.getEnvelopes().add(target);
+        user.setActivePeriod(activePeriod);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(target);
+    }
+
+    @PostMapping(value = "remove_envelope")
+    public ResponseEntity<?> removeEnvelope(Authentication auth, @RequestBody Envelope target) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        activePeriod.getEnvelopes().remove(target);
+        user.setActivePeriod(activePeriod);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(target);
+    }
+
+    @PostMapping(value = "update_envelope")
+    public ResponseEntity<?> updateEnvelope(Authentication auth, @RequestBody Envelope target) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        List<Envelope> envelopes = activePeriod.getEnvelopes();
+        envelopes = envelopes.stream().filter(envelope ->
+                !Objects.equals(envelope.getCategoryName(), target.getCategoryName())
+        ).collect(Collectors.toList());
+        activePeriod.setEnvelopes(envelopes);
+        user.setActivePeriod(activePeriod);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(target);
+    }
+
+    @PostMapping(value = "remove_transaction")
+    public ResponseEntity<?> removeTransaction(Authentication auth, @RequestBody Transaction target) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        List<Transaction> newTransactions = activePeriod.getTransactions()
+                .stream()
+                .filter(t -> !t.getTimestamp().equals(target.getTimestamp()))
+                .collect(Collectors.toList());
+        activePeriod.setTransactions(newTransactions);
+        user.setActivePeriod(activePeriod);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(target);
     }
 }

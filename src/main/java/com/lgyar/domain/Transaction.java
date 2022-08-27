@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document
 public class Transaction {
-    private String category;
-    @JsonFormat(shape=JsonFormat.Shape.STRING)
-    private BigDecimal balanceDifference;
-
     @Id
     @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss")
     private LocalDateTime timestamp;
+
+    private String category;
+    @JsonFormat(shape=JsonFormat.Shape.STRING)
+    private BigDecimal balanceDifference;
 }
