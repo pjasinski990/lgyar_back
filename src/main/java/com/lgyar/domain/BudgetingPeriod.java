@@ -20,9 +20,9 @@ public class BudgetingPeriod {
     private List<Envelope> envelopes;
     private List<Transaction> transactions;
 
-    @JsonFormat(pattern="dd.MM.yyyy")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate startDate;
-    @JsonFormat(pattern="dd.MM.yyyy")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate endDate;
 
     @JsonFormat(shape=JsonFormat.Shape.STRING)

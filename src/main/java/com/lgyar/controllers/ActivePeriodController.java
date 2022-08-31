@@ -171,4 +171,30 @@ public class ActivePeriodController {
         repository.save(user);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(newValue);
     }
+
+    @PostMapping(value = "edit_start_date")
+    public ResponseEntity<?> editStartDate(Authentication auth, @RequestBody LocalDate newDate) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        user.getActivePeriod().setStartDate(newDate);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(newDate);
+    }
+
+    @PostMapping(value = "edit_end_date")
+    public ResponseEntity<?> editEndDate(Authentication auth, @RequestBody LocalDate newDate) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod activePeriod = user.getActivePeriod();
+        if (activePeriod == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        user.getActivePeriod().setEndDate(newDate);
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(newDate);
+    }
 }
