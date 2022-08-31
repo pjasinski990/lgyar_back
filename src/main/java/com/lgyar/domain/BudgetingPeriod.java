@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,4 +24,7 @@ public class BudgetingPeriod {
     private LocalDate startDate;
     @JsonFormat(pattern="dd.MM.yyyy")
     private LocalDate endDate;
+
+    @JsonFormat(shape=JsonFormat.Shape.STRING)
+    private BigDecimal availableMoney;
 }
