@@ -34,7 +34,6 @@ public class LikeGivingYourselfARaiseApplication {
                         null,
                         null
                 );
-                repository.deleteAll();
                 repository.save(user);
             }
         };
