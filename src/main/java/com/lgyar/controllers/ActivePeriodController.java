@@ -11,14 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +37,26 @@ public class ActivePeriodController {
         return u.get();
     }
 
+    private boolean hasPeriodWithStartingDate(AppUser user, LocalDate date) {
+        List<BudgetingPeriod> previousPeriods = user.getPreviousPeriods();
+        if (previousPeriods != null) {
+            BudgetingPeriod existing = previousPeriods
+                    .stream()
+                    .filter(period -> date.equals(period.getStartDate()))
+                    .findAny()
+                    .orElse(null);
+            return existing != null;
+        }
+        return false;
+    }
+
+    @GetMapping(value = "")
+    public ResponseEntity<?> retrieve(Authentication auth, @RequestBody BudgetingPeriod newPeriod) {
+        AppUser user = getUser(auth);
+        BudgetingPeriod ap = user.getActivePeriod();
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(ap);
+    }
+
     @PostMapping(value = "create")
     public ResponseEntity<?> create(Authentication auth, @RequestBody BudgetingPeriod newPeriod) {
         AppUser user = getUser(auth);
@@ -53,6 +71,12 @@ public class ActivePeriodController {
         if (newPeriod.getEndDate() == null) {
             newPeriod.setEndDate(newPeriod.getStartDate().plusMonths(1));
         }
+        if (hasPeriodWithStartingDate(user, newPeriod.getStartDate())) {
+            HashMap<String, String> body = new HashMap<>();
+            body.put("error_message", "Budgeting period that starts on " + newPeriod.getStartDate() + " already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(body);
+        }
+
         user.setActivePeriod(newPeriod);
         repository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(newPeriod);
@@ -63,7 +87,9 @@ public class ActivePeriodController {
         AppUser user = getUser(auth);
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            HashMap<String, String> body = new HashMap<>();
+            body.put("error_message", "There is no active budgeting period");
+            return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(body);
         }
         List<BudgetingPeriod> previousPeriods = user.getPreviousPeriods();
         if (previousPeriods == null) {
@@ -180,6 +206,12 @@ public class ActivePeriodController {
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        if (hasPeriodWithStartingDate(user, newDate)) {
+            HashMap<String, String> body = new HashMap<>();
+            body.put("error_message", "Budgeting period that starts on " + newDate + " already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(body);
         }
 
         user.getActivePeriod().setStartDate(newDate);
