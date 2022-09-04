@@ -100,7 +100,7 @@ public class ActivePeriodController {
         user.setActivePeriod(null);
 
         repository.save(user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(activePeriod);
     }
 
     @PostMapping(value = "add_envelope")
@@ -201,7 +201,7 @@ public class ActivePeriodController {
     }
 
     @PostMapping(value = "edit_start_date")
-    public ResponseEntity<?> editStartDate(Authentication auth, @RequestBody LocalDate newDate) {
+    public synchronized ResponseEntity<?> editStartDate(Authentication auth, @RequestBody LocalDate newDate) {
         AppUser user = getUser(auth);
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
@@ -220,7 +220,7 @@ public class ActivePeriodController {
     }
 
     @PostMapping(value = "edit_end_date")
-    public ResponseEntity<?> editEndDate(Authentication auth, @RequestBody LocalDate newDate) {
+    public synchronized ResponseEntity<?> editEndDate(Authentication auth, @RequestBody LocalDate newDate) {
         AppUser user = getUser(auth);
         BudgetingPeriod activePeriod = user.getActivePeriod();
         if (activePeriod == null) {
